@@ -4,7 +4,7 @@ ComfyDataVault = ComfyDataVault or {}
 local V = ComfyDataVault
 
 V.name = ADDON_NAME or "ComfyDataVault"
-V.version = "0.2"
+V.version = "0.3"
 V.maxSnapshots = 5
 
 local function Epoch()
@@ -139,6 +139,41 @@ function V:GetStatus()
     }
 end
 
+function V:RegisterBlizzardSettingsCategory()
+    if self.settingsCategory then return end
+    if not (Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory) then return end
+
+    local canvas = CreateFrame("Frame")
+    local isDE = type(GetLocale) == "function" and GetLocale() == "deDE"
+
+    local title = canvas:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    title:SetPoint("TOPLEFT", 16, -16)
+    title:SetText("ComfyDataVault")
+
+    local desc = canvas:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -12)
+    desc:SetWidth(560)
+    desc:SetJustifyH("LEFT")
+    desc:SetText(isDE
+        and "Unabhängiger Snapshot- und Wiederherstellungsdienst für ComfyData. Die Vault-Daten liegen in einer eigenen SavedVariables-Datei."
+        or "Independent snapshot and recovery service for ComfyData. Vault data is stored in its own SavedVariables file.")
+
+    local status = canvas:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    status:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -18)
+    local info = self:GetStatus()
+    status:SetText(string.format("v%s  ·  snapshots %d/%d  ·  latest: %s",
+        tostring(self.version), tonumber(info.snapshotCount) or 0, tonumber(self.maxSnapshots) or 5,
+        tostring(info.latestReason or "none")))
+
+    local commands = canvas:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    commands:SetPoint("TOPLEFT", status, "BOTTOMLEFT", 0, -18)
+    commands:SetText("/cdvault snapshot  ·  /cdvault restore  ·  /cdvault restore-migration")
+
+    local category = Settings.RegisterCanvasLayoutCategory(canvas, "ComfyDataVault")
+    Settings.RegisterAddOnCategory(category)
+    self.settingsCategory = category
+end
+
 SLASH_COMFYDATAVAULT1 = "/comfydatavault"
 SLASH_COMFYDATAVAULT2 = "/cdvault"
 SlashCmdList.COMFYDATAVAULT = function(msg)
@@ -172,5 +207,5 @@ end
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("ADDON_LOADED")
 loader:SetScript("OnEvent", function(_, _, name)
-    if name == V.name then V:EnsureDB() end
+    if name == V.name then V:EnsureDB(); V:RegisterBlizzardSettingsCategory() end
 end)
