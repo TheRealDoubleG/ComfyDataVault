@@ -1,9 +1,9 @@
 # ComfyDataVault
 
-**Version 0.2 – Beta**  
+**Version 0.3 – Beta**  
 **Target: World of Warcraft: Forever 1.60.1 / Interface 16001**
 
-ComfyDataVault is the independent backup/recovery companion for **ComfyData**.
+ComfyDataVault is the independent backup/recovery companion for **ComfyData**. A small status page is registered in Blizzard's AddOns settings list.
 
 It has no normal configuration UI. It stores up to **five rolling validated snapshots** plus a separately protected **latest pre-migration snapshot** in a different WoW SavedVariables file: `ComfyDataVaultDB.lua`.
 
