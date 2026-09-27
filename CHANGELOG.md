@@ -1,5 +1,11 @@
 # ComfyDataVault Changelog
 
+## 0.2 Beta – 28.09.2026
+- Added a separately protected latest pre-migration snapshot that is not removed by rolling-snapshot pruning.
+- Added restore-migration recovery command.
+- Kept five rolling snapshots for normal session/manual recovery.
+
+
 ## 0.1 Beta – 28.09.2026
 - Initial independent ComfyData backup/recovery service.
 - Keeps up to five deep-copy snapshots.
