@@ -1,0 +1,12 @@
+## Interface: 16001
+## Title: ComfyDataVault
+## Notes: Backup and recovery service for ComfyData on WoW Forever.
+## Notes-deDE: Backup- und Wiederherstellungsdienst für ComfyData in WoW Forever.
+## Author: TheRealDoubleG
+## Version: 0.1
+## SavedVariables: ComfyDataVaultDB
+## X-ComfySuite: true
+## X-ComfyDataVault: true
+## IconTexture: Interface\\Icons\\INV_Misc_Lockbox_1
+
+Core.lua
