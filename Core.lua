@@ -4,7 +4,7 @@ ComfyDataVault = ComfyDataVault or {}
 local V = ComfyDataVault
 
 V.name = ADDON_NAME or "ComfyDataVault"
-V.version = "0.1"
+V.version = "0.2"
 V.maxSnapshots = 5
 
 local function Epoch()
@@ -78,6 +78,10 @@ function V:CreateSnapshot(data, reason)
     }
 
     db.snapshots[#db.snapshots + 1] = snapshot
+    if snapshot.reason:match("^pre%-migration") then
+        db.migrationSnapshot = DeepCopy(snapshot)
+        db.meta.lastMigrationSnapshotAt = snapshot.createdAt
+    end
     db.meta.lastSnapshotAt = snapshot.createdAt
     db.meta.lastReason = snapshot.reason
     self:Prune()
@@ -102,7 +106,17 @@ end
 
 function V:GetLatestSnapshotData()
     local snapshot = self:GetLatestValidSnapshot()
+    if not snapshot then
+        local migration = self:EnsureDB().migrationSnapshot
+        if migration and self:ValidateData(migration.data) then snapshot = migration end
+    end
     if not snapshot then return nil end
+    return DeepCopy(snapshot.data), snapshot
+end
+
+function V:GetMigrationSnapshotData()
+    local snapshot = self:EnsureDB().migrationSnapshot
+    if not snapshot or not self:ValidateData(snapshot.data) then return nil end
     return DeepCopy(snapshot.data), snapshot
 end
 
@@ -139,11 +153,19 @@ SlashCmdList.COMFYDATAVAULT = function(msg)
     elseif msg == "restore" then
         local ok, why = V:RestoreLatestToGlobal()
         if not ok then V:Print("Restore failed: " .. tostring(why)) end
+    elseif msg == "restore-migration" then
+        local data, snapshot = V:GetMigrationSnapshotData()
+        if data then
+            ComfyDataDB = data
+            V:Print("Pre-migration snapshot restored in memory. Use /reload now.")
+        else
+            V:Print("No valid pre-migration snapshot available.")
+        end
     else
         local status = V:GetStatus()
         V:Print("v" .. V.version .. " | snapshots " .. tostring(status.snapshotCount) .. "/" .. tostring(V.maxSnapshots)
             .. " | latest: " .. tostring(status.latestReason or "none"))
-        V:Print("Commands: /cdvault snapshot | /cdvault restore")
+        V:Print("Commands: /cdvault snapshot | /cdvault restore | /cdvault restore-migration")
     end
 end
 
