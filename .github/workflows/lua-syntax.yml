@@ -57,3 +57,9 @@ jobs:
               exit 1
             fi
           done < "$toc"
+
+      - name: Validate Blizzard AddOns settings registration
+        run: |
+          set -euo pipefail
+          grep -R --include='*.lua' -q 'Settings.RegisterCanvasLayoutCategory' .
+          grep -R --include='*.lua' -q 'Settings.RegisterAddOnCategory' .
