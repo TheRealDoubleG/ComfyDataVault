@@ -3,7 +3,7 @@
 ## Notes: Backup and recovery service for ComfyData on WoW Forever.
 ## Notes-deDE: Backup- und Wiederherstellungsdienst für ComfyData in WoW Forever.
 ## Author: TheRealDoubleG
-## Version: 0.3
+## Version: 0.4
 ## SavedVariables: ComfyDataVaultDB
 ## X-ComfySuite: true
 ## X-ComfyDataVault: true
