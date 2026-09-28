@@ -4,7 +4,7 @@ ComfyDataVault = ComfyDataVault or {}
 local V = ComfyDataVault
 
 V.name = ADDON_NAME or "ComfyDataVault"
-V.version = "0.3"
+V.version = "0.4"
 V.maxSnapshots = 5
 
 local function Epoch()
