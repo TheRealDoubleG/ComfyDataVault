@@ -10,3 +10,4 @@
 ## IconTexture: Interface\\Icons\\INV_Misc_Lockbox_1
 
 Core.lua
+BlizzardSettings.lua
