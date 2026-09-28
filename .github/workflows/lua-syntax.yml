@@ -1,0 +1,59 @@
+name: Lua 5.1 + WoW Forever Validation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lua 5.1
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lua5.1
+
+      - name: Check Lua 5.1 syntax
+        run: |
+          set -euo pipefail
+          found=0
+          while IFS= read -r -d '' file; do
+            found=1
+            echo "Checking Lua: $file"
+            luac5.1 -p "$file"
+          done < <(find . -type f -name '*.lua' -not -path './.git/*' -print0)
+          if [ "$found" -ne 1 ]; then
+            echo "No Lua files found."
+            exit 1
+          fi
+
+      - name: Validate WoW Forever TOC
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t tocs < <(find . -maxdepth 1 -type f -name '*.toc' -print)
+          if [ "${#tocs[@]}" -ne 1 ]; then
+            echo "Expected exactly one root .toc file, found ${#tocs[@]}."
+            exit 1
+          fi
+          toc="${tocs[0]}"
+          echo "Checking TOC: $toc"
+          grep -Eq '^## Interface:[[:space:]]*16001[[:space:]]*$' "$toc"
+          grep -Eq '^## Title:[[:space:]]*.+$' "$toc"
+          grep -Eq '^## Notes:[[:space:]]*.+$' "$toc"
+          grep -Eq '^## Author:[[:space:]]*.+$' "$toc"
+          grep -Eq '^## Version:[[:space:]]*.+$' "$toc"
+
+          while IFS= read -r line || [ -n "$line" ]; do
+            line="${line%$'\r'}"
+            case "$line" in
+              ""|"##"*|"#"*) continue ;;
+            esac
+            file="${line//\\//}"
+            if [ ! -e "$file" ]; then
+              echo "TOC references missing file: $line"
+              exit 1
+            fi
+          done < "$toc"
