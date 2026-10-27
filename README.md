@@ -1,23 +1,33 @@
-# ComfyDataVault
+# ComfyDataVault 0.5 (development)
 
-**Version 0.3 – Beta**  
-**Target: World of Warcraft: Forever 1.60.1 / Interface 16001**
+WoW Forever 1.60.1 / Interface 16001. Separate SavedVariables file for
+5 rotating backups and a protected pre-migration copy of ComfyDataDB.
 
-ComfyDataVault is the independent backup/recovery companion for **ComfyData**. A small status page is registered in Blizzard's AddOns settings list.
+Safety: deep-copy snapshots, deterministic two-part checksums, rejection
+of empty or malformed tables, corruption detection on restore, and a
+quarantine for damaged original live databases.
 
-It has no normal configuration UI. It stores up to **five rolling validated snapshots** plus a separately protected **latest pre-migration snapshot** in a different WoW SavedVariables file: `ComfyDataVaultDB.lua`.
+WoW slash commands:
+- /cdvault : snapshot status
+- /cdvault snapshot : save a verified snapshot
+- /cdvault restore : show warning; no mutation
+- /cdvault restore confirm : restore newest verified backup into RAM
+- /cdvault restore-migration confirm : restore verified pre-migration copy
 
-## Why it is separate
+Run /reload after restoring. WoW writes SavedVariables at reload or logout.
+An addon cannot persist immediately or protect against disk failure.
 
-ComfyData and ComfyDataVault intentionally use different SavedVariables. A broken migration or accidental reset of the live ComfyData table therefore does not automatically destroy the last Vault snapshots.
+Legacy v0.4 snapshots lack a checksum and will not be automatically
+restored by v0.5. Keep a copy of your previous WTF folder for manual
+recovery; legacy snapshots are not deleted by the upgrade.
 
-Updating/replacing addon folders inside `Interface/AddOns` does not overwrite either database. WoW stores them below the account's `WTF` folder.
+Windows external backup helper:
+PowerShell: .\tools\backup-wtf.ps1 -WoWRoot 'D:\World of Warcraft\_classic_' -BackupRoot 'E:\WoW-WTF-Backups'
+Adjust paths, then run with the WoW client CLOSED after logout.
+The tool copies the entire WTF folder to a unique new directory and creates
+a SHA256 manifest for ComfyData.lua / ComfyDataVault.lua and .bak variants.
+PowerShell live integration has not yet been tested on the Windows gaming PC.
 
-## Commands
-
-- `/cdvault` – status
-- `/cdvault snapshot` – manual snapshot
-- `/cdvault restore` – restore the newest valid rolling snapshot in memory; then use `/reload`
-- `/cdvault restore-migration` – restore the protected latest pre-migration snapshot
-
-For protection against a complete WTF-folder loss, back up the WTF folder externally as well.
+Offline tests:
+lua5.1 tests/test_vault.lua .
+lua5.4 tests/test_vault.lua .
