@@ -129,9 +129,29 @@ function V:ValidateData(data)
             return false, "invalid character record"
         end
     end
-    for _, key in ipairs({"meta", "kills", "gathering", "sessions", "accountTotals"}) do
+    for _, key in ipairs({"meta", "kills", "gathering", "quests", "loot", "wallet", "sessions", "accountTotals"}) do
         if data[key] ~= nil and type(data[key]) ~= "table" then
             return false, key .. " invalid"
+        end
+    end
+    -- A checksum only proves a snapshot has not changed. It does not prove
+    -- its structure is usable. Reject damaged nested records before backup
+    -- or restore; tolerate missing keys from older schema versions.
+    local nested = {
+        kills = {"account", "characters", "sessions", "deaths"},
+        gathering = {"nodes", "items", "zones", "characters", "sessions"},
+        quests = {"completed", "characters"},
+        loot = {"items", "characters", "sessions"},
+        wallet = {"characters", "lastChanges", "currencies"},
+    }
+    for section, keys in pairs(nested) do
+        local parent = data[section]
+        if type(parent) == "table" then
+            for _, key in ipairs(keys) do
+                if parent[key] ~= nil and type(parent[key]) ~= "table" then
+                    return false, section .. "." .. key .. " invalid"
+                end
+            end
         end
     end
     return true
