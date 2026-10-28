@@ -1,6 +1,8 @@
 # ComfyDataVault Changelog
 
 ## 0.5 (development)
+- Verify nested kill, quest, loot and wallet structures in snapshots and restores.
+- Refuse backups of malformed structures; preserve original saved data for inspection.
 - Deterministic integrity fingerprints and full-data snapshot validation.
 - Guarded explicit restore and protected migration snapshot.
 - Quarantine damaged live data before recovery.
