@@ -1,5 +1,13 @@
 # ComfyDataVault Changelog
 
+## 0.5 (development)
+- Verify nested kill, quest, loot and wallet structures in snapshots and restores.
+- Refuse backups of malformed structures; preserve original saved data for inspection.
+- Deterministic integrity fingerprints and full-data snapshot validation.
+- Guarded explicit restore and protected migration snapshot.
+- Quarantine damaged live data before recovery.
+- Lua safety suite and external WTF backup helper (Windows test pending).
+
 ## 0.3 Beta – 28.09.2026
 - Registered ComfyDataVault in Blizzard's AddOns settings list.
 - Added a lightweight status page showing rolling snapshot state and recovery commands.
