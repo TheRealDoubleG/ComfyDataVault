@@ -31,3 +31,19 @@ PowerShell live integration has not yet been tested on the Windows gaming PC.
 Offline tests:
 lua5.1 tests/test_vault.lua .
 lua5.4 tests/test_vault.lua .
+
+## Nested corruption validation (development)
+
+A matching fingerprint alone does not prove a snapshot is usable.
+The Vault also checks the shape of nested kill, quest, loot and wallet tables.
+Malformed structures cannot be promoted to verified snapshots or restored.
+Missing fields from older schemas remain backward compatible.
+
+ComfyData preserves any newer corrupted live data in the one quarantinedData
+slot before restoring older verified data. If the slot is already occupied,
+recovery must stop until the copies are reviewed and backed up externally.
+Avoid wiping the SavedVariables files, especially with unsaved loot/kills.
+
+Offline integration tests:
+lua5.1 ../ComfyData/tests/test_nested_data_guard.lua ../ComfyData .
+lua5.4 ../ComfyData/tests/test_nested_data_guard.lua ../ComfyData .
